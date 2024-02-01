@@ -56,4 +56,11 @@
   (swap! broj-poteza inc)
   (print-board @board))
 
+; vraca vrednost u tom redu i toj koloni
+(defn value-at [board row col]
+  (try (nth (nth board row) col)
+       (catch Exception e -1)))
+
+
+
 
