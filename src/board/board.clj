@@ -134,7 +134,20 @@
       (loop [i 0]
         (if (not= (value-at board (- row i 1) (- col i 1)) igrac)
           i
-          (recur (inc i)))
-        )))
-  )
+          (recur (inc i)))))))
+
+
+; proverava da li je igrac pobedio
+(defn check-win [board row col]
+  (or
+    (>= (count-down board row col) 3)
+    (>= (+ (count-left board row col)
+           (count-right board row col))
+        3)
+    (>= (+ (count-up-left board row col)
+           (count-down-right board row col))
+        3)
+    (>= (+ (count-up-right board row col)
+           (count-down-left board row col))
+        3)))
 
