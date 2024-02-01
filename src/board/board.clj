@@ -20,7 +20,7 @@
 
 
 (defn print-board [board]
-  (doseq [row board]
+  (doseq [row (reverse board)]
     (println row)))
 
 
