@@ -61,9 +61,6 @@
   (try (nth (nth board row) col)
        (catch Exception e -1)))
 
-; proverava da li je igrac pobedio
-(defn check-win [board player])
-
 (defn count-left [board row col]
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
@@ -86,4 +83,58 @@
         ))))
 
 
+(defn count-down [board row col]
+  (let [igrac (value-at board row col)]
+    (if (<= igrac 0)
+      0
+      (loop [i 0]
+        (if (not= (value-at board (- row i 1) col) igrac)
+          i
+          (recur (inc i)))
+        ))))
+
+
+(defn count-up-right [board row col]
+  (let [igrac (value-at board row col)]
+    (if (<= igrac 0)
+      0
+      (loop [i 0]
+        (if (not= (value-at board (+ row i 1) (+ col i 1)) igrac)
+          i
+          (recur (inc i)))
+        )))
+  )
+
+(defn count-up-left [board row col]
+  (let [igrac (value-at board row col)]
+    (if (<= igrac 0)
+      0
+      (loop [i 0]
+        (if (not= (value-at board (+ row i 1) (- col i 1)) igrac)
+          i
+          (recur (inc i)))
+        )))
+  )
+
+(defn count-down-right [board row col]
+  (let [igrac (value-at board row col)]
+    (if (<= igrac 0)
+      0
+      (loop [i 0]
+        (if (not= (value-at board (- row i 1) (+ col i 1)) igrac)
+          i
+          (recur (inc i)))
+        )))
+  )
+
+(defn count-down-left [board row col]
+  (let [igrac (value-at board row col)]
+    (if (<= igrac 0)
+      0
+      (loop [i 0]
+        (if (not= (value-at board (- row i 1) (- col i 1)) igrac)
+          i
+          (recur (inc i)))
+        )))
+  )
 
