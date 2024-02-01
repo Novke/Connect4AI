@@ -52,7 +52,11 @@
 (defn insert-coin [board col player]
   (if (col-full? board col)
     (throw (Exception. "Kolona je puna"))
-    (place-coin board col player)))
+    (if (and
+          (not= player 1)
+          (not= player 2))
+      (throw (Exception. "Igrac moze biti samo 1 ili 2"))
+      (place-coin board col player))))
 
 ; swap insert coin, poziva se od strane korisnika
 (defn insert-coin! [board col player]
