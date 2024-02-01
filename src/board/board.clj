@@ -23,6 +23,10 @@
   (doseq [row (reverse board)]
     (println row)))
 
+(defn pretty-print-board [board]
+  (doseq [row (reverse board)]
+    (println (map #(if (= % 0) " " (if (= % 1) "X" "O")) row))))
+
 
 ;proverava da li je kolona puna
 (defn col-full? [board col]
