@@ -7,19 +7,24 @@
 
 
 (defn- get-row [board row]
+  "Vraca red sa indeksom row iz table."
   (nth board row))
 
 (defn- get-col [board col]
+  "Vraca kolonu sa indeksom col iz table."
   (map #(nth % col) board))
 
 (defn build-board [width height]
+  "Pravi tablu dimenzija width x height."
   (vec (repeat height (vec (repeat width 0)))))
 
 (defn init-board []
+  "Inicijalizuje tablu standardnih dimenzija 7x6."
   (build-board 7 6))
 
 
 (defn print-board [board]
+  "Ispisuje tablu."
   (doseq [row (reverse board)]
     (println row)))
 
@@ -28,34 +33,36 @@
 ;    (println (map #(if (= % 2) "O" (if (= % 1) "X" " ")) row))))
 
 (defn pretty-print-board [board]
+  "Ispisuje tablu sa lepim znakovima."
   (print-board-using board "+" "-"))
 
 (defn print-board-using [board char1 char2]
+  "Ispisuje tablu sa zadatim znakovima."
   (doseq [row (reverse board)]
     (println (map #(if (= % 2) char2 (if (= % 1) char1 " ")) row))))
 
-;proverava da li je kolona puna
 (defn col-full? [board col]
+  "Proverava da li je kolona puna."
   (not= (nth (get-col board col) 5) 0))
 
-; proverava da li je cela tabla puna
 (defn board-full? [board]
+  "Proverava da li je cela tabla puna."
   (every? #(not (col-full? board %)) (range 7)))
 
-; funkcija koja nalazi element jednak nuli najblizi dnu kolone
 (defn find-zero [col]
+  "Vraca indeks prvog praznog polja u koloni."
   (loop [i 0]
     (if (= (nth col i) 0)
       i
       (recur (inc i)))))
 
-; postavlja novi element na tablu
 (defn place-coin [board col player]
+  "Ubacuje novcic igraca player u kolonu col."
   (let [row (find-zero (get-col board col))]
     (assoc-in board [row col] player)))
 
-; ubacuje novi element u kolonu
 (defn insert-coin [board col player]
+  "Validira potez i vraca novu tablu sa novcicem na odgovarajucem mestu."
   (if (col-full? board col)
     (throw (Exception. "Kolona je puna"))
     (if (and
@@ -64,18 +71,20 @@
       (throw (Exception. "Igrac moze biti samo 1 ili 2"))
       (place-coin board col player))))
 
-; swap insert coin, poziva se od strane korisnika
+; swap insert coin, pozivati ovu funkciju
 (defn insert-coin! [board col player]
+  "Menja tabelu i unosi novcic u kolonu col za igraca player."
   (swap! board #(insert-coin % col player))
   (swap! broj-poteza inc)
   (print-board @board))
 
-; vraca vrednost u tom redu i toj koloni
 (defn value-at [board row col]
+  "Vraca vrednost polja zadatih kooridnata."
   (try (nth (nth board row) col)
        (catch Exception e -1)))
 
 (defn count-left [board row col]
+  "Broji koliko novcica igrac ima levo od zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -87,6 +96,7 @@
   )
 
 (defn count-right [board row col]
+  "Broji koliko novcica igrac ima desno od zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -98,6 +108,7 @@
 
 
 (defn count-down [board row col]
+  "Broji koliko novcica igrac ima ispod zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -109,6 +120,7 @@
 
 
 (defn count-up-right [board row col]
+  "Broji koliko novcica igrac ima dijagonalno gore desno od zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -120,6 +132,7 @@
   )
 
 (defn count-up-left [board row col]
+  "Broji koliko novcica igrac ima dijagonalno gore levo od zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -131,6 +144,7 @@
   )
 
 (defn count-down-right [board row col]
+  "Broji koliko novcica igrac ima dijagonalno dole desno od zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -142,6 +156,7 @@
   )
 
 (defn count-down-left [board row col]
+  "Broji koliko novcica igrac ima dijagonalno dole levo od zadatih koordinata."
   (let [igrac (value-at board row col)]
     (if (<= igrac 0)
       0
@@ -151,8 +166,8 @@
           (recur (inc i)))))))
 
 
-; proverava da li je igrac pobedio
 (defn check-win [board row col]
+  "Proverava da li je igrac pobedio nakon postavljenog novcica u redu row i koloni col."
   (or
     (>= (count-down board row col) 3)
     (>= (+ (count-left board row col)
