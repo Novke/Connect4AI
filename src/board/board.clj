@@ -83,8 +83,7 @@
 (defn insert-coin! [board col player]
   "Menja tabelu i unosi novcic u kolonu col za igraca player."
   (swap! board #(insert-coin % col player))
-  (swap! broj-poteza inc)
-  (print-board @board))
+  (swap! broj-poteza inc))
 
 (defn value-at [board row col]
   "Vraca vrednost polja zadatih kooridnata."
@@ -187,4 +186,44 @@
     (>= (+ (count-up-right board row col)
            (count-down-left board row col))
         3)))
+
+; player je atom
+(defn- switch-player!
+  [player]
+  "Menja igraca."
+  (reset! player (- 3 @player)))
+
+;broj ne-nula elemenata u koloni
+(defn count-col [board col]
+  (count (filter #(not= % 0) (get-col board col))))
+
+(defn- hooray [player]
+  "Ispisuje poruku o pobedniku."
+  (println "=========================")
+  (println "   Pobedio je igrac" player)
+  (println "========================="))
+
+(defn- draw []
+  "Ispisuje poruku o neresenom rezultatu."
+  (println "-------------------------")
+  (println "       Nereseno!")
+  (println "-------------------------"))
+
+; player je atom, indeks kolone krece od 1
+(defn play!
+  [board col player]
+  "Igra potez za igraca player u koloni col."
+  (insert-coin! board (- col 1) @player)
+  (if (check-win @board (- (count-col @board (- col 1)) 1) (- col 1))
+    (do
+      (hooray @player)
+      (reset-board! board)
+      (switch-player! player))
+    (if (board-full? @board)
+      (do
+        (draw)
+        (reset-board! board))
+      (switch-player! player)))
+  (print-board @board)
+  (println "Na potezu je igrac" @player))
 
