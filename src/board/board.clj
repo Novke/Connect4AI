@@ -51,7 +51,7 @@
 
 (defn board-full? [board]
   "Proverava da li je cela tabla puna."
-  (every? #(not (col-full? board %)) (range 7)))
+  (every? #(col-full? board %) (range 7)))
 
 (defn find-zero [col]
   "Vraca indeks prvog praznog polja u koloni."
