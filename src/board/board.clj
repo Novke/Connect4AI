@@ -14,6 +14,11 @@
   "Vraca kolonu sa indeksom col iz table."
   (map #(nth % col) board))
 
+(defn print-board [board]
+  "Ispisuje tablu."
+  (doseq [row (reverse board)]
+    (println row)))
+
 (defn build-board [width height]
   "Pravi tablu dimenzija width x height."
   (vec (repeat height (vec (repeat width 0)))))
@@ -22,24 +27,23 @@
   "Inicijalizuje tablu standardnih dimenzija 7x6."
   (build-board 7 6))
 
-
-(defn print-board [board]
-  "Ispisuje tablu."
-  (doseq [row (reverse board)]
-    (println row)))
+(defn reset-board! [board]
+  "Resetuje tablu na pocetno stanje."
+  (reset! board (init-board))
+  (reset! broj-poteza 0))
 
 ;(defn pretty-print-board [board]
 ;  (doseq [row (reverse board)]
 ;    (println (map #(if (= % 2) "O" (if (= % 1) "X" " ")) row))))
 
-(defn pretty-print-board [board]
-  "Ispisuje tablu sa lepim znakovima."
-  (print-board-using board "+" "-"))
-
 (defn print-board-using [board char1 char2]
   "Ispisuje tablu sa zadatim znakovima."
   (doseq [row (reverse board)]
     (println (map #(if (= % 2) char2 (if (= % 1) char1 " ")) row))))
+
+(defn pretty-print-board [board]
+  "Ispisuje tablu sa lepim znakovima."
+  (print-board-using board "+" "-"))
 
 (defn col-full? [board col]
   "Proverava da li je kolona puna."
