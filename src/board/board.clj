@@ -67,13 +67,17 @@
 
 (defn insert-coin [board col player]
   "Validira potez i vraca novu tablu sa novcicem na odgovarajucem mestu."
-  (if (col-full? board col)
+  (if (or
+        (>= col 7)
+        (< col 0))
+    (throw (Exception. "Odabrati kolonu izmedju 1 i 7"))
+   (if (col-full? board col)
     (throw (Exception. "Kolona je puna"))
     (if (and
           (not= player 1)
           (not= player 2))
       (throw (Exception. "Igrac moze biti samo 1 ili 2"))
-      (place-coin board col player))))
+      (place-coin board col player)))))
 
 ; swap insert coin, pozivati ovu funkciju
 (defn insert-coin! [board col player]
