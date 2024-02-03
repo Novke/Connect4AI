@@ -90,102 +90,103 @@
   (try (nth (nth board row) col)
        (catch Exception e -1)))
 
-(defn count-left [board row col]
+(defn count-left [board row col igrac]
   "Broji koliko novcica igrac ima levo od zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board row (- col i 1)) igrac)
-          i
-          (recur (inc i)))
-        )))
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board row (- col i 1)) igrac)
+        i
+        (recur (inc i)))
+      ))
   )
 
-(defn count-right [board row col]
+(defn count-right [board row col igrac]
   "Broji koliko novcica igrac ima desno od zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board row (+ col i 1)) igrac)
-          i
-          (recur (inc i)))
-        ))))
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board row (+ col i 1)) igrac)
+        i
+        (recur (inc i)))
+      )))
 
 
-(defn count-down [board row col]
+(defn count-down [board row col igrac]
   "Broji koliko novcica igrac ima ispod zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board (- row i 1) col) igrac)
-          i
-          (recur (inc i)))
-        ))))
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board (- row i 1) col) igrac)
+        i
+        (recur (inc i)))
+      )))
 
 
-(defn count-up-right [board row col]
+(defn count-up-right [board row col igrac]
   "Broji koliko novcica igrac ima dijagonalno gore desno od zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board (+ row i 1) (+ col i 1)) igrac)
-          i
-          (recur (inc i)))
-        )))
-  )
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board (+ row i 1) (+ col i 1)) igrac)
+        i
+        (recur (inc i)))
+      )))
 
-(defn count-up-left [board row col]
+(defn count-up-left [board row col igrac]
   "Broji koliko novcica igrac ima dijagonalno gore levo od zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board (+ row i 1) (- col i 1)) igrac)
-          i
-          (recur (inc i)))
-        )))
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board (+ row i 1) (- col i 1)) igrac)
+        i
+        (recur (inc i)))
+      ))
   )
 
-(defn count-down-right [board row col]
+(defn count-down-right [board row col igrac]
   "Broji koliko novcica igrac ima dijagonalno dole desno od zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board (- row i 1) (+ col i 1)) igrac)
-          i
-          (recur (inc i)))
-        )))
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board (- row i 1) (+ col i 1)) igrac)
+        i
+        (recur (inc i)))
+      )))
+
+(defn count-down-left [board row col igrac]
+  "Broji koliko novcica igrac ima dijagonalno dole levo od zadatih koordinata."
+  (if (<= igrac 0)
+    0
+    (loop [i 0]
+      (if (not= (value-at board (- row i 1) (- col i 1)) igrac)
+        i
+        (recur (inc i))))))
+
+
+(defn- check-win [board row col player]
+  "Proverava da li je igrac [player] pobedio nakon postavljenog novcica u redu [row] i koloni [col]."
+  (if (not= player (value-at board row col))
+    false
+    (or
+      (>= (count-down board row col player) 3)
+      (>= (+ (count-left board row col player)
+             (count-right board row col player))
+          3)
+      (>= (+ (count-up-left board row col player)
+             (count-down-right board row col player))
+          3)
+      (>= (+ (count-up-right board row col player)
+             (count-down-left board row col player))
+          3)))
   )
 
-(defn count-down-left [board row col]
-  "Broji koliko novcica igrac ima dijagonalno dole levo od zadatih koordinata."
-  (let [igrac (value-at board row col)]
-    (if (<= igrac 0)
-      0
-      (loop [i 0]
-        (if (not= (value-at board (- row i 1) (- col i 1)) igrac)
-          i
-          (recur (inc i)))))))
-
-
-(defn check-win [board row col]
-  "Proverava da li je igrac pobedio nakon postavljenog novcica u redu row i koloni col."
-  (or
-    (>= (count-down board row col) 3)
-    (>= (+ (count-left board row col)
-           (count-right board row col))
-        3)
-    (>= (+ (count-up-left board row col)
-           (count-down-right board row col))
-        3)
-    (>= (+ (count-up-right board row col)
-           (count-down-left board row col))
-        3)))
+;vraca true ako jeste i nil ako nije
+(defn check-win-global [board player]
+  "Proverava da li je igrac [player] pobedio."
+  ;proverava da li je igrac player pobedio pozivajuci check-win za svako polje
+  (some identity (for [row (range 6) col (range 7)]
+                   (check-win board row col player))))
 
 ; player je atom
 (defn- switch-player!
@@ -214,7 +215,7 @@
   [board col player]
   "Igra potez za igraca player u koloni col."
   (insert-coin! board (- col 1) @player)
-  (if (check-win @board (- (count-col @board (- col 1)) 1) (- col 1))
+  (if (check-win @board (- (count-col @board (- col 1)) 1) (- col 1) @player)
     (do
       (hooray @player)
       (reset-board! board)
