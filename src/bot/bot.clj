@@ -148,3 +148,31 @@
         (if (< vrednost min)
           (recur (inc i) vrednost i)
           (recur (inc i) min move))))))
+
+(defn my-minimax [board depth player]
+  "Vraca najbolji potez za igraca player"
+  (if (or (board/check-win-global board 1) (board/check-win-global board 2) (board/board-full? board) (<= depth 1))
+    (if (= player 1)
+      (my-max board)
+      (my-min board))
+    (if (= player 1)
+      ;max funkcija
+      (loop [i 0
+             max -10000
+             move -1]
+        (if (> i 6)
+          {:evaluation max :move move}
+          (let [vrednost (get (my-minimax (hypothetical-move board i player) (dec depth) (enemy-of player)) :evaluation)]
+            (if (> vrednost max)
+              (recur (inc i) vrednost i)
+              (recur (inc i) max move)))))
+      ;min funkcija
+      (loop [i 0
+             min 10000
+             move -1]
+        (if (> i 6)
+          {:evaluation min :move move}
+          (let [vrednost (get (my-minimax (hypothetical-move board i player) (dec depth) (enemy-of player)) :evaluation)]
+            (if (< vrednost min)
+              (recur (inc i) vrednost i)
+              (recur (inc i) min move))))))))
