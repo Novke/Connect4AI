@@ -9,14 +9,15 @@
     (if (board/check-win-global board 1)
       1000
       0)))
-
+(defn enemy-of [player]
+  (- 3 player))
 (defn occupied? [board row col]
 (not= (board/value-at board row col) 0))
 
 (defn occupied-by? [board row col player]
 (= (board/value-at board row col) player))
 (defn opponent-occupied? [board row col player]
-  (occupied-by? board row col (- 3 player)))
+  (occupied-by? board row col (enemy-of player)))
 
 ; proverava to polje i tri polja udesno
 (defn check-possible-win-horizontal [board row col player]
