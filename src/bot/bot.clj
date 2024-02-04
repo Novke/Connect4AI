@@ -122,4 +122,29 @@
 
 
 
+(defn hypothetical-move [board column player]
+  (board/insert-coin board column player))
 
+(defn my-max [board]
+  "Vraca najbolji potez za igraca 1."
+  (loop [i 0
+         max -10000
+         move -1]
+    (if (> i 6)
+      {:evaluation max :move move}
+      (let [vrednost (evaluate-position (hypothetical-move board i 1))]
+        (if (> vrednost max)
+          (recur (inc i) vrednost i)
+          (recur (inc i) max move))))))
+
+(defn my-min [board]
+  "Vraca najbolji potez za igraca 2."
+  (loop [i 0
+         min 10000
+         move -1]
+    (if (> i 6)
+      {:evaluation min :move move}
+      (let [vrednost (evaluate-position (hypothetical-move board i 2))]
+        (if (< vrednost min)
+          (recur (inc i) vrednost i)
+          (recur (inc i) min move))))))
