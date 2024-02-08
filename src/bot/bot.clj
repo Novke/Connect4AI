@@ -261,6 +261,140 @@
     (println "Uninterrupted twos player " player " : " rez)
     rez))
 
+(defn check-threes-in-a-row-horizontal [board row col player]
+  (if (> col 3)
+    false
+    (if (or
+          (opponent-occupied? board row col player)
+          (opponent-occupied? board row (+ col 1) player)
+          (opponent-occupied? board row (+ col 2) player)
+          (opponent-occupied? board row (+ col 3) player))
+      false
+      (let [num-of-coins (atom 0)]
+        (if (occupied-by? board row col player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board row (+ col 1) player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board row (+ col 2) player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board row (+ col 3) player)
+          (swap! num-of-coins inc))
+        (= @num-of-coins 3)))))
+
+(defn check-threes-in-a-row-vertical [board row col player]
+  (if (> row 2)
+    false
+    (if (or
+          (opponent-occupied? board row col player)
+          (opponent-occupied? board (+ row 1) col player)
+          (opponent-occupied? board (+ row 2) col player)
+          (opponent-occupied? board (+ row 3) col player))
+      false
+      (let [num-of-coins (atom 0)]
+        (if (occupied-by? board row col player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (+ row 1) col player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (+ row 2) col player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (+ row 3) col player)
+          (swap! num-of-coins inc))
+        (= @num-of-coins 3)))))
+
+(defn check-threes-in-a-row-main-diagonal [board row col player]
+  (if (or (> row 2) (> col 3))
+    false
+    (if (or
+          (opponent-occupied? board row col player)
+          (opponent-occupied? board (+ row 1) (+ col 1) player)
+          (opponent-occupied? board (+ row 2) (+ col 2) player)
+          (opponent-occupied? board (+ row 3) (+ col 3) player))
+      false
+      (let [num-of-coins (atom 0)]
+        (if (occupied-by? board row col player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (+ row 1) (+ col 1) player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (+ row 2) (+ col 2) player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (+ row 3) (+ col 3) player)
+          (swap! num-of-coins inc))
+        (= @num-of-coins 3)))))
+
+(defn check-threes-in-a-row-secondary-diagonal [board row col player]
+  (if (or (< row 3) (> col 3))
+    false
+    (if (or
+          (opponent-occupied? board row col player)
+          (opponent-occupied? board (- row 1) (+ col 1) player)
+          (opponent-occupied? board (- row 2) (+ col 2) player)
+          (opponent-occupied? board (- row 3) (+ col 3) player))
+      false
+      (let [num-of-coins (atom 0)]
+        (if (occupied-by? board row col player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (- row 1) (+ col 1) player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (- row 2) (+ col 2) player)
+          (swap! num-of-coins inc))
+        (if (occupied-by? board (- row 3) (+ col 3) player)
+          (swap! num-of-coins inc))
+        (= @num-of-coins 3)))))
+
+(defn count-threes-in-a-row-horizontal [board player]
+  (loop [i 0
+         j 0
+         count 0]
+    (if (> j 3)
+      (recur (inc i) 0 count)
+      (if (>= i 6)
+        count
+        (if (check-threes-in-a-row-horizontal board i j player)
+          (recur i (inc j) (inc count))
+          (recur i (inc j) count))))))
+
+(defn count-threes-in-a-row-vertical [board player]
+  (loop [i 0
+         j 0
+         count 0]
+    (if (> i 3)
+      (recur 0 (inc j) count)
+      (if (>= j 7)
+        count
+        (if (check-threes-in-a-row-vertical board i j player)
+          (recur (inc i) j (inc count))
+          (recur (inc i) j count))))))
+
+(defn count-threes-in-a-row-main-diagonal [board player]
+  (loop [i 0
+         j 0
+         count 0]
+    (if (> j 3)
+      (recur (inc i) 0 count)
+      (if (>= i 3)
+        count
+        (if (check-threes-in-a-row-main-diagonal board i j player)
+          (recur i (inc j) (inc count))
+          (recur i (inc j) count))))))
+
+(defn count-threes-in-a-row-secondary-diagonal [board player]
+  (loop [i 3
+         j 0
+         count 0]
+    (if (> j 3)
+      (recur (inc i) 0 count)
+      (if (>= i 6)
+        count
+        (if (check-threes-in-a-row-secondary-diagonal board i j player)
+          (recur i (inc j) (inc count))
+          (recur i (inc j) count))))))
+
+(defn count-threes-in-a-row [board player]
+  (+ (count-threes-in-a-row-horizontal board player)
+     (count-threes-in-a-row-vertical board player)
+     (count-threes-in-a-row-main-diagonal board player)
+     (count-threes-in-a-row-secondary-diagonal board player)))
+
 (defn evaluate-position [board]
   (if (board/check-win-global board 2)
     -1000
