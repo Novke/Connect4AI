@@ -14,6 +14,8 @@
 (defn occupied? [board row col]
 (not= (board/value-at board row col) 0))
 
+(defn unoccupied? [board row col]
+  (= (board/value-at board row col) 0))
 (defn occupied-by? [board row col player]
 (= (board/value-at board row col) player))
 (defn opponent-occupied? [board row col player]
