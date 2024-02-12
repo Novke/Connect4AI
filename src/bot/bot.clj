@@ -419,7 +419,9 @@
          max -10000
          move -1]
     (if (> i 6)
-      {:evaluation max :move move}
+      (if (= max -10000)
+        (throw (Exception. "Nema mogucih poteza"))
+        {:evaluation max :move move})
       (let [vrednost (evaluate-position (hypothetical-move board i 1))]
         (if (> vrednost max)
           (recur (inc i) vrednost i)
@@ -431,7 +433,9 @@
          min 10000
          move -1]
     (if (> i 6)
-      {:evaluation min :move move}
+      (if (= min 10000)
+        (throw (Exception. "Nema mogucih poteza"))
+        {:evaluation min :move move})
       (let [vrednost (evaluate-position (hypothetical-move board i 2))]
         (if (< vrednost min)
           (recur (inc i) vrednost i)
