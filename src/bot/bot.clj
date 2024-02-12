@@ -1,28 +1,26 @@
 (ns bot.bot
   (:require [board.board :refer :all :as board]))
 
-; 0 znaci sve je jednako, - znaci player 2 ( bot ) dobija
-(defn evaluate-position
-  [board]
-  (if (board/check-win-global board 2)
-    -1000
-    (if (board/check-win-global board 1)
-      1000
-      0)))
 (defn enemy-of [player]
+  "Vraca protivnika prosledjenog igraca"
   (- 3 player))
 (defn occupied? [board row col]
+  "Proverava da li je bilo koji igrac postavio novcic na zadatu poziciju"
 (not= (board/value-at board row col) 0))
 
 (defn unoccupied? [board row col]
+  "Proverava da li je zadata pozicija prazna"
   (= (board/value-at board row col) 0))
 (defn occupied-by? [board row col player]
+  "Proverava da li je zadati igrac postavio novcic na zadatu poziciju"
 (= (board/value-at board row col) player))
 (defn opponent-occupied? [board row col player]
+  "Proverava da li je protivnik zadatog igraca postavio novcic na zadatu poziciju"
   (occupied-by? board row col (enemy-of player)))
 
 ; proverava to polje i tri polja udesno
 (defn check-possible-win-horizontal [board row col player]
+  "Proverava da li je protivnik zauzeo zadato mesto ili neko od tri mesta udesno"
       (if (> col 3)
         false
         (not (or
@@ -32,6 +30,7 @@
         (opponent-occupied? board row (+ col 3) player)))))
 
 (defn check-possible-win-vertical [board row col player]
+      "Proverava da li je protivnik zauzeo zadato mesto ili neko od tri mesta iznad"
       (if (> row 2)
         false
         (not (or
@@ -41,6 +40,7 @@
         (opponent-occupied? board (+ row 3) col player)))))
 
 (defn check-possible-win-main-diagonal [board row col player]
+      "Proverava da li je protivnik zauzeo zadato mesto ili neko od tri mesta u dijagonali gore desno"
       (if (or (> row 2) (> col 3))
         false
         (not (or
@@ -50,6 +50,7 @@
         (opponent-occupied? board (+ row 3) (+ col 3) player)))))
 
 (defn check-possible-win-secondary-diagonal [board row col player]
+      "Proverava da li je protivnik zauzeo zadato mesto ili neko od tri mesta u dijagonali gore levo"
       (if (or (< row 3) (> col 3))
         false
         (not (or
@@ -60,6 +61,7 @@
 
 
 (defn count-possible-wins-horizontal [board player]
+  "Broji na koliko nacina igrac moze da pobedi horizontalno"
   (loop [i 0
          j 0
          count 0]
@@ -72,6 +74,7 @@
         (recur i (inc j) count))))))
 
 (defn count-possible-wins-vertical [board player]
+  "Broji na koliko nacina igrac moze da pobedi vertikalno"
   (loop [i 0
          j 0
          count 0]
@@ -84,6 +87,7 @@
         (recur (inc i) j count))))))
 
 (defn count-possible-wins-main-diagonal [board player]
+  "Broji na koliko nacina igrac moze da pobedi po glavnoj dijagonali"
   (loop [i 0
          j 0
          count 0]
@@ -96,6 +100,7 @@
           (recur i (inc j) count))))))
 
 (defn count-possible-wins-secondary-diagonal [board player]
+  "Broji na koliko nacina igrac moze da pobedi po sporednoj dijagonali"
   (loop [i 3
          j 0
          count 0]
@@ -108,6 +113,7 @@
           (recur i (inc j) count))))))
 
 (defn count-possible-wins [board player]
+  "Broji na koliko nacina igrac moze da pobedi"
   (+ (count-possible-wins-horizontal board player)
      (count-possible-wins-vertical board player)
      (count-possible-wins-main-diagonal board player)
@@ -122,6 +128,7 @@
 ;    rez))
 
 (defn check-twos-in-a-row-horizontal [board row col player]
+  "Proverava da li igrac ima dva novcica u nizu horizontalno"
   (if (> col 3)
     false
     (or
@@ -142,6 +149,7 @@
         (occupied-by? board row (+ col 3) player)))))
 
 (defn check-twos-in-a-row-vertical [board row col player]
+  "Proverava da li igrac ima dva novcica u nizu vertikalno"
   (if (> row 2)
     false
     (or
@@ -162,6 +170,7 @@
         (occupied-by? board (+ row 3) col player)))))
 
 (defn check-twos-in-a-row-main-diagonal [board row col player]
+  "Proverava da li igrac ima dva novcica u nizu po glavnoj dijagonali"
   (if (or (> row 2) (> col 3))
     false
     (or
@@ -182,6 +191,7 @@
         (occupied-by? board (+ row 3) (+ col 3) player)))))
 
 (defn check-twos-in-a-row-secondary-diagonal [board row col player]
+  "Proverava da li igrac ima dva novcica u nizu po sporednoj dijagonali"
   (if (or (< row 3) (> col 3))
     false
     (or
@@ -201,6 +211,7 @@
         (occupied-by? board (- row 2) (+ col 2) player)
         (occupied-by? board (- row 3) (+ col 3) player)))))
 (defn count-uninterrupted-twos-in-a-row-horizontal [board player]
+  "Broji na koliko mesta igrac ima dva novcica u nizu horizontalno"
   (loop [i 0
          j 0
          count 0]
@@ -213,6 +224,7 @@
           (recur i (inc j) count))))))
 
 (defn count-uninterrupted-twos-in-a-row-vertical [board player]
+  "Broji na koliko mesta igrac ima dva novcica u nizu vertikalno"
   (loop [i 0
          j 0
          count 0]
@@ -225,6 +237,7 @@
           (recur (inc i) j count))))))
 
 (defn count-uninterrupted-twos-in-a-row-main-diagonal [board player]
+  "Broji na koliko mesta igrac ima dva novcica u nizu po glavnoj dijagonali"
   (loop [i 0
          j 0
          count 0]
@@ -237,6 +250,7 @@
           (recur i (inc j) count))))))
 
 (defn count-uninterrupted-twos-in-a-row-secondary-diagonal [board player]
+  "Broji na koliko mesta igrac ima dva novcica u nizu po sporednoj dijagonali"
   (loop [i 3
          j 0
          count 0]
@@ -249,6 +263,7 @@
           (recur i (inc j) count))))))
 
 (defn count-uninterrupted-twos-in-a-row [board player]
+  "Broji na koliko mesta igrac ima dva novcica u nizu, i da oni imaju potencijal da spoje 4 u nizu"
   (+ (count-uninterrupted-twos-in-a-row-horizontal board player)
      (count-uninterrupted-twos-in-a-row-vertical board player)
      (count-uninterrupted-twos-in-a-row-main-diagonal board player)
@@ -263,6 +278,7 @@
 ;    rez))
 
 (defn check-threes-in-a-row-horizontal [board row col player]
+  "Proverava da li igrac ima tri novcica horizontalno, koji imaju sansu da spoje 4 u nizu."
   (if (> col 3)
     false
     (if (or
@@ -283,6 +299,7 @@
         (= @num-of-coins 3)))))
 
 (defn check-threes-in-a-row-vertical [board row col player]
+  "Proverava da li igrac ima tri novcica vertikalno, koji imaju sansu da spoje 4 u nizu."
   (if (> row 2)
     false
     (if (or
@@ -303,6 +320,7 @@
         (= @num-of-coins 3)))))
 
 (defn check-threes-in-a-row-main-diagonal [board row col player]
+  "Proverava da li igrac ima tri novcica po glavnoj dijagonali, koji imaju sansu da spoje 4 u nizu."
   (if (or (> row 2) (> col 3))
     false
     (if (or
@@ -323,6 +341,7 @@
         (= @num-of-coins 3)))))
 
 (defn check-threes-in-a-row-secondary-diagonal [board row col player]
+  "Proverava da li igrac ima tri novcica po sporednoj dijagonali, koji imaju sansu da spoje 4 u nizu."
   (if (or (< row 3) (> col 3))
     false
     (if (or
@@ -343,6 +362,7 @@
         (= @num-of-coins 3)))))
 
 (defn count-threes-in-a-row-horizontal [board player]
+  "Broji na koliko mesta igrac ima tri novcica u nizu horizontalno, koji imaju sansu da spoje 4 u nizu."
   (loop [i 0
          j 0
          count 0]
@@ -355,6 +375,7 @@
           (recur i (inc j) count))))))
 
 (defn count-threes-in-a-row-vertical [board player]
+  "Broji na koliko mesta igrac ima tri novcica u nizu vertikalno, koji imaju sansu da spoje 4 u nizu."
   (loop [i 0
          j 0
          count 0]
@@ -367,6 +388,7 @@
           (recur (inc i) j count))))))
 
 (defn count-threes-in-a-row-main-diagonal [board player]
+  "Broji na koliko mesta igrac ima tri novcica po glavnoj dijagonali, koji imaju sansu da spoje 4 u nizu."
   (loop [i 0
          j 0
          count 0]
@@ -379,6 +401,7 @@
           (recur i (inc j) count))))))
 
 (defn count-threes-in-a-row-secondary-diagonal [board player]
+  "Broji na koliko mesta igrac ima tri novcica po sporednoj dijagonali, koji imaju sansu da spoje 4 u nizu."
   (loop [i 3
          j 0
          count 0]
@@ -391,30 +414,29 @@
           (recur i (inc j) count))))))
 
 (defn count-threes-in-a-row [board player]
+  "Broji na koliko mesta igrac ima tri novcica, koji imaju sansu da spoje 4 u nizu."
   (+ (count-threes-in-a-row-horizontal board player)
      (count-threes-in-a-row-vertical board player)
      (count-threes-in-a-row-main-diagonal board player)
      (count-threes-in-a-row-secondary-diagonal board player)))
 
 (defn evaluate-position [board]
-  (if (board/check-win-global board 2)
-    -1000
-    (if (board/check-win-global board 1)
-      1000
-      (if (board/board-full? board)
-        0
-        (+
-          (* 1 (- (count-possible-wins board 1) (count-possible-wins board 2)))
-          (* 2 (- (count-uninterrupted-twos-in-a-row board 1) (count-uninterrupted-twos-in-a-row board 2)))
-          (* 5 (- (count-threes-in-a-row board 1) (count-threes-in-a-row board 2))))))))
-
+  "Vraca vrednost pozicije na tabli. Negativan broj predstavlja poziciju koja vise odgovara igracu 2, pozitivan igracu 1."
+  (cond
+    (board/check-win-global board 2) -1000
+    (board/check-win-global board 1) 1000
+    (board/board-full? board) 0
+    :else (+ (* 1 (- (count-possible-wins board 1) (count-possible-wins board 2)))
+             (* 2 (- (count-uninterrupted-twos-in-a-row board 1) (count-uninterrupted-twos-in-a-row board 2)))
+             (* 5 (- (count-threes-in-a-row board 1) (count-threes-in-a-row board 2))))))
 
 
 (defn hypothetical-move [board column player]
+  "Vraca tablu nakon sto je igrac player odigrao potez u koloni column."
   (board/insert-coin board column player))
 
 (defn my-max [board]
-  "Vraca najbolji potez za igraca 1."
+  "Vraca najbolji potez za igraca 1 u datoj poziciji."
   (loop [i 0
          max -10000
          move -1]
@@ -428,7 +450,7 @@
           (recur (inc i) max move))))))
 
 (defn my-min [board]
-  "Vraca najbolji potez za igraca 2."
+  "Vraca najbolji potez za igraca 2 u datoj poziciji."
   (loop [i 0
          min 10000
          move -1]
@@ -441,8 +463,58 @@
           (recur (inc i) vrednost i)
           (recur (inc i) min move))))))
 
+;(defn my-minimax [board depth player]
+;  "Vraca najbolji potez za igraca player"
+;  (if (or (board/check-win-global board 1) (board/check-win-global board 2) (board/board-full? board) (<= depth 1))
+;    (if (= player 1)
+;      (my-max board)
+;      (my-min board))
+;    (if (= player 1)
+;      ;max funkcija
+;      (loop [i 0
+;             max -10000
+;             move -1]
+;        (if (> i 6)
+;          ; mozda ovde d abacim exception ako je max -10000
+;          (if (= max -10000)
+;            (throw (Exception. "Nema mogucih poteza"))
+;           {:evaluation max :move move})
+;          (let [vrednost (try
+;                           (get
+;                            (my-minimax
+;                              (hypothetical-move board i player)
+;                              (dec depth) (enemy-of player))
+;                            :evaluation)
+;                           (catch Exception ignored
+;                             max))]
+;            (if (> vrednost max)
+;              (recur (inc i) vrednost i)
+;              (recur (inc i) max move)))))
+;
+;
+;      ;min funkcija
+;      (loop [i 0
+;             min 10000
+;             move -1]
+;        (if (> i 6)
+;          (if (= min 10000)
+;            (throw (Exception. "Nema mogucih poteza"))
+;           {:evaluation min :move move})
+;          (let [vrednost (try
+;                           (get
+;                             (my-minimax
+;                               (hypothetical-move board i player)
+;                               (dec depth)
+;                               (enemy-of player))
+;                             :evaluation)
+;                           (catch Exception ignored
+;                             min))]
+;            (if (< vrednost min)
+;              (recur (inc i) vrednost i)
+;              (recur (inc i) min move))))))))
+
 (defn my-minimax [board depth player]
-  "Vraca najbolji potez za igraca player"
+  "Vraca najbolji potez i evaluaciju tog poteza igraca player sa prosledjenom dubinom proveravanja"
   (if (or (board/check-win-global board 1) (board/check-win-global board 2) (board/board-full? board) (<= depth 1))
     (if (= player 1)
       (my-max board)
@@ -491,9 +563,11 @@
 
 
 (defn get-best-move [board depth player]
+  "Vraca kolonu koju bi trebalo sledeci igrac da odigra"
   (get (my-minimax board depth player) :move))
 
 (defn let-bot-play! [board depth player]
+  "Poziva funkciju play! sa najboljim potezom za drugog igraca"
   (if (= @player 1)
     (throw (Exception. "Bot ne moze igrati za igraca 1")))
   (let [move (inc (get-best-move @board depth @player))]
@@ -501,6 +575,7 @@
     (play! board move player)))
 
 (defn autoplay! [board move depth player]
+  "Odigrava dati potez za igraca 1 i automatski odigrava najbolji moguci potez za igraca 2"
   (if (= @player 2)
     (throw (Exception. "Autoplay moze samo za igraca 1")))
   (play! board move player)
