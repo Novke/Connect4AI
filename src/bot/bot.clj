@@ -453,18 +453,38 @@
              max -10000
              move -1]
         (if (> i 6)
-          {:evaluation max :move move}
-          (let [vrednost (get (my-minimax (hypothetical-move board i player) (dec depth) (enemy-of player)) :evaluation)]
+          ; mozda ovde d abacim exception ako je max -10000
+          (if (= max -10000)
+            (throw (Exception. "Nema mogucih poteza"))
+            {:evaluation max :move move})
+          (let [result (try
+                         (my-minimax
+                           (hypothetical-move board i player)
+                           (dec depth) (enemy-of player))
+                         (catch Exception ignored
+                           {:evaluation max :move move}))
+                vrednost (get result :evaluation)]
             (if (> vrednost max)
               (recur (inc i) vrednost i)
               (recur (inc i) max move)))))
+
+
       ;min funkcija
       (loop [i 0
              min 10000
              move -1]
         (if (> i 6)
-          {:evaluation min :move move}
-          (let [vrednost (get (my-minimax (hypothetical-move board i player) (dec depth) (enemy-of player)) :evaluation)]
+          (if (= min 10000)
+            (throw (Exception. "Nema mogucih poteza"))
+            {:evaluation min :move move})
+          (let [result (try
+                         (my-minimax
+                           (hypothetical-move board i player)
+                           (dec depth)
+                           (enemy-of player))
+                         (catch Exception ignored
+                           {:evaluation min :move move}))
+                vrednost (get result :evaluation)]
             (if (< vrednost min)
               (recur (inc i) vrednost i)
               (recur (inc i) min move))))))))
