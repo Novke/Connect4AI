@@ -107,18 +107,19 @@
           (recur i (inc j) (inc count))
           (recur i (inc j) count))))))
 
-;(defn count-possible-wins [board player]
-;  (+ (count-possible-wins-horizontal board player)
-;     (count-possible-wins-vertical board player)
-;     (count-possible-wins-main-diagonal board player)
-;     (count-possible-wins-secondary-diagonal board player)))
 (defn count-possible-wins [board player]
-  (let [rez (+ (count-possible-wins-horizontal board player)
-               (count-possible-wins-vertical board player)
-               (count-possible-wins-main-diagonal board player)
-               (count-possible-wins-secondary-diagonal board player))]
-    (println "Possible wins player " player " : " rez)
-    rez))
+  (+ (count-possible-wins-horizontal board player)
+     (count-possible-wins-vertical board player)
+     (count-possible-wins-main-diagonal board player)
+     (count-possible-wins-secondary-diagonal board player)))
+
+;(defn count-possible-wins [board player]
+;  (let [rez (+ (count-possible-wins-horizontal board player)
+;               (count-possible-wins-vertical board player)
+;               (count-possible-wins-main-diagonal board player)
+;               (count-possible-wins-secondary-diagonal board player))]
+;    (println "Possible wins player " player " : " rez)
+;    rez))
 
 (defn check-twos-in-a-row-horizontal [board row col player]
   (if (> col 3)
@@ -247,19 +248,19 @@
           (recur i (inc j) (inc count))
           (recur i (inc j) count))))))
 
-;(defn count-uninterrupted-twos-in-a-row [board player]
-;  (+ (count-uninterrupted-twos-in-a-row-horizontal board player)
-;     (count-uninterrupted-twos-in-a-row-vertical board player)
-;     (count-uninterrupted-twos-in-a-row-main-diagonal board player)
-;     (count-uninterrupted-twos-in-a-row-secondary-diagonal board player)))
-
 (defn count-uninterrupted-twos-in-a-row [board player]
-  (let [rez (+ (count-uninterrupted-twos-in-a-row-horizontal board player)
+  (+ (count-uninterrupted-twos-in-a-row-horizontal board player)
      (count-uninterrupted-twos-in-a-row-vertical board player)
      (count-uninterrupted-twos-in-a-row-main-diagonal board player)
-     (count-uninterrupted-twos-in-a-row-secondary-diagonal board player))]
-    (println "Uninterrupted twos player " player " : " rez)
-    rez))
+     (count-uninterrupted-twos-in-a-row-secondary-diagonal board player)))
+
+;(defn count-uninterrupted-twos-in-a-row [board player]
+;  (let [rez (+ (count-uninterrupted-twos-in-a-row-horizontal board player)
+;     (count-uninterrupted-twos-in-a-row-vertical board player)
+;     (count-uninterrupted-twos-in-a-row-main-diagonal board player)
+;     (count-uninterrupted-twos-in-a-row-secondary-diagonal board player))]
+;    (println "Uninterrupted twos player " player " : " rez)
+;    rez))
 
 (defn check-threes-in-a-row-horizontal [board row col player]
   (if (> col 3)
