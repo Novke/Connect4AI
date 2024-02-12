@@ -404,8 +404,9 @@
       (if (board/board-full? board)
         0
         (+
-          (- (count-possible-wins board 1) (count-possible-wins board 2))
-          (- (count-uninterrupted-twos-in-a-row board 1) (count-uninterrupted-twos-in-a-row board 2)))))))
+          (* 1 (- (count-possible-wins board 1) (count-possible-wins board 2)))
+          (* 2 (- (count-uninterrupted-twos-in-a-row board 1) (count-uninterrupted-twos-in-a-row board 2)))
+          (* 5 (- (count-threes-in-a-row board 1) (count-threes-in-a-row board 2))))))))
 
 
 
