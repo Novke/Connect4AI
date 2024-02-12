@@ -488,3 +488,22 @@
             (if (< vrednost min)
               (recur (inc i) vrednost i)
               (recur (inc i) min move))))))))
+
+
+(defn get-best-move [board depth player]
+  (get (my-minimax board depth player) :move))
+
+(defn let-bot-play! [board depth player]
+  (if (= @player 1)
+    (throw (Exception. "Bot ne moze igrati za igraca 1")))
+  (let [move (inc (get-best-move @board depth @player))]
+    (println "Bot igra kolonu : " move)
+    (play! board move player)))
+
+(defn autoplay! [board move depth player]
+  (if (= @player 2)
+    (throw (Exception. "Autoplay moze samo za igraca 1")))
+  (play! board move player)
+  (if (> depth 5) (Thread/sleep 2000))
+  (let-bot-play! board depth player))
+
