@@ -2,7 +2,6 @@
 
 (def igrac-1 (atom "Igrac 1"))
 (def igrac-2 (atom "Igrac 2"))
-(def broj-poteza (atom 0))
 (def igrac-1-prvi (atom true))
 
 
@@ -29,8 +28,7 @@
 
 (defn reset-board! [board]
   "Resetuje tablu na pocetno stanje."
-  (reset! board (init-board))
-  (reset! broj-poteza 0))
+  (reset! board (init-board)))
 
 ;(defn pretty-print-board [board]
 ;  (doseq [row (reverse board)]
