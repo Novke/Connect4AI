@@ -1,6 +1,6 @@
 # _Connect 4_
 
-![img.png](../resources/connect-four-bot/connect4irl.png)
+![img_1.png](imgwin.png)
 
 What you see here is an implementation of a popular board game called *Connect 4*. 
 The game is implemented in Clojure, including game logic & rules, and a simple AI to play against. 
@@ -152,7 +152,7 @@ There are also some utility functions that can help you out:
 ### Winning
 
 Upon winning, the game will print a cute message and reset the board.
-![img_1.png](../resources/connect-four-bot/winning_message.png)
+![img.png](imgirl.png)
 
 ## License
 
