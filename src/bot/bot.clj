@@ -423,20 +423,23 @@
 (defn evaluate-position [board]
   "Vraca vrednost pozicije na tabli. Negativan broj predstavlja poziciju koja vise odgovara igracu 2, pozitivan igracu 1."
   (cond
-    (board/check-win-global board 2) -1000
-    (board/check-win-global board 1) 1000
+    (board/check-win-global board 2) -10000
+    (board/check-win-global board 1) 10000
     (board/board-full? board) 0
     :else (+ (* 1 (- (count-possible-wins board 1) (count-possible-wins board 2)))
              (* 2 (- (count-uninterrupted-twos-in-a-row board 1) (count-uninterrupted-twos-in-a-row board 2)))
              (* 5 (- (count-threes-in-a-row board 1) (count-threes-in-a-row board 2))))))
 
 
+; OCEKUJE ATOM
 (defn hypothetical-move [board column player]
   "Vraca tablu nakon sto je igrac player odigrao potez u koloni column."
+  ;(println "Proveren hipoteticki potez " column " za igraca " player) ;LOG
   (board/insert-coin board column player))
 
 (defn my-max [board]
   "Vraca najbolji potez za igraca 1 u datoj poziciji."
+  ;(println "My-max") ;LOG
   (loop [i 0
          max -10000
          move -1]
@@ -444,13 +447,18 @@
       (if (= max -10000)
         (throw (Exception. "Nema mogucih poteza"))
         {:evaluation max :move move})
-      (let [vrednost (evaluate-position (hypothetical-move board i 1))]
-        (if (> vrednost max)
-          (recur (inc i) vrednost i)
-          (recur (inc i) max move))))))
+
+      (if (col-full? board i)
+        (recur (inc i) max move)
+        (let [vrednost (evaluate-position (hypothetical-move board i 1))]
+          ;(println "Za potez: " i  " je dobijena vrednost: " vrednost ", a max je " max) ;LOG
+          (if (> vrednost max)
+            (recur (inc i) vrednost i)
+            (recur (inc i) max move)))))))
 
 (defn my-min [board]
   "Vraca najbolji potez za igraca 2 u datoj poziciji."
+  ;(println "My-min") ;LOG
   (loop [i 0
          min 10000
          move -1]
@@ -458,108 +466,74 @@
       (if (= min 10000)
         (throw (Exception. "Nema mogucih poteza"))
         {:evaluation min :move move})
-      (let [vrednost (evaluate-position (hypothetical-move board i 2))]
-        (if (< vrednost min)
-          (recur (inc i) vrednost i)
-          (recur (inc i) min move))))))
 
-;(defn my-minimax [board depth player]
-;  "Vraca najbolji potez za igraca player"
-;  (if (or (board/check-win-global board 1) (board/check-win-global board 2) (board/board-full? board) (<= depth 1))
-;    (if (= player 1)
-;      (my-max board)
-;      (my-min board))
-;    (if (= player 1)
-;      ;max funkcija
-;      (loop [i 0
-;             max -10000
-;             move -1]
-;        (if (> i 6)
-;          ; mozda ovde d abacim exception ako je max -10000
-;          (if (= max -10000)
-;            (throw (Exception. "Nema mogucih poteza"))
-;           {:evaluation max :move move})
-;          (let [vrednost (try
-;                           (get
-;                            (my-minimax
-;                              (hypothetical-move board i player)
-;                              (dec depth) (enemy-of player))
-;                            :evaluation)
-;                           (catch Exception ignored
-;                             max))]
-;            (if (> vrednost max)
-;              (recur (inc i) vrednost i)
-;              (recur (inc i) max move)))))
-;
-;
-;      ;min funkcija
-;      (loop [i 0
-;             min 10000
-;             move -1]
-;        (if (> i 6)
-;          (if (= min 10000)
-;            (throw (Exception. "Nema mogucih poteza"))
-;           {:evaluation min :move move})
-;          (let [vrednost (try
-;                           (get
-;                             (my-minimax
-;                               (hypothetical-move board i player)
-;                               (dec depth)
-;                               (enemy-of player))
-;                             :evaluation)
-;                           (catch Exception ignored
-;                             min))]
-;            (if (< vrednost min)
-;              (recur (inc i) vrednost i)
-;              (recur (inc i) min move))))))))
+      (if (col-full? board i)
+        (recur (inc i) min move)
+        (let [vrednost (evaluate-position (hypothetical-move board i 2))]
+        ;(println "Za potez: " i  " je dobijena vrednost: " vrednost ", a min je " min "za potez" move) ;LOG
+          (if (< vrednost min)
+          (recur (inc i) vrednost i)
+          (recur (inc i) min move)))))))
+
 
 (defn my-minimax [board depth player]
   "Vraca najbolji potez i evaluaciju tog poteza igraca player sa prosledjenom dubinom proveravanja"
-  (if (or (board/check-win-global board 1) (board/check-win-global board 2) (board/board-full? board) (<= depth 1))
-    (if (= player 1)
-      (my-max board)
-      (my-min board))
-    (if (= player 1)
-      ;max funkcija
-      (loop [i 0
-             max -10000
-             move -1]
-        (if (> i 6)
-          ; mozda ovde d abacim exception ako je max -10000
-          (if (= max -10000)
-            (throw (Exception. "Nema mogucih poteza"))
-            {:evaluation max :move move})
-          (let [result (try
-                         (my-minimax
-                           (hypothetical-move board i player)
-                           (dec depth) (enemy-of player))
-                         (catch Exception ignored
-                           {:evaluation max :move move}))
-                vrednost (get result :evaluation)]
-            (if (> vrednost max)
-              (recur (inc i) vrednost i)
-              (recur (inc i) max move)))))
+  (if (board/check-win-global board 1)
+    10000
+    (if (board/check-win-global board 2)
+      -10000
+      (if (board/board-full? board)
+        0
+        (if (<= depth 1)
+          (if (= player 1)
+          (my-max board)
+          (my-min board))
+        (if (= player 1)
 
 
-      ;min funkcija
-      (loop [i 0
-             min 10000
-             move -1]
-        (if (> i 6)
-          (if (= min 10000)
-            (throw (Exception. "Nema mogucih poteza"))
-            {:evaluation min :move move})
-          (let [result (try
-                         (my-minimax
-                           (hypothetical-move board i player)
-                           (dec depth)
-                           (enemy-of player))
-                         (catch Exception ignored
-                           {:evaluation min :move move}))
-                vrednost (get result :evaluation)]
-            (if (< vrednost min)
-              (recur (inc i) vrednost i)
-              (recur (inc i) min move))))))))
+          ;max funkcija
+          (loop [i 0
+                 max -10000
+                 move -1]
+            ;kraj petlje
+            ;(println "Iteracija: " i " max: " max) ;LOG
+            (if (> i 6)
+              (if (= max -10000)
+                (throw (Exception. "Nema mogucih poteza"))
+                {:evaluation max :move move})
+
+              (let [result (try
+                             (my-minimax
+                               (hypothetical-move board i player)
+                               (dec depth) (enemy-of player))
+                             (catch Exception ignored
+                               {:evaluation max :move move}))]
+                (if (> (:evaluation result) max)
+                  (recur (inc i) (:evaluation result) i)
+                  (recur (inc i) max move)))))
+
+
+          ;min funkcija
+          (loop [i 0
+                 min 10000
+                 move -1]
+            ;(println "Iteracija: " i " min: " min) ;LOG
+            (if (> i 6)
+              (if (= min 10000)
+                (throw (Exception. "Nema mogucih poteza"))
+                {:evaluation min :move move})
+              (let [result (try
+                             (my-minimax
+                               (hypothetical-move board i player)
+                               (dec depth)
+                               (enemy-of player))
+                             (catch Exception ignored
+                               ;(println "Exception" (.getMessage ignored)) ;LOG
+                               {:evaluation min :move move}))]
+                ;(println "Nakon " i " poteza " player " ima evaluaciju " (:evaluation result) " i min je " min) ;LOG
+                (if (< (:evaluation result) min)
+                  (recur (inc i) (:evaluation result) i)
+                  (recur (inc i) min move)))))))))))
 
 
 (defn get-best-move [board depth player]
@@ -579,6 +553,7 @@
   (if (= @player 2)
     (throw (Exception. "Autoplay moze samo za igraca 1")))
   (play! board move player)
-  (if (> depth 5) (Thread/sleep 2000))
+  (println "Bot razmislja...")
+  (if (< depth 6) (Thread/sleep 2000))
   (let-bot-play! board depth player))
 

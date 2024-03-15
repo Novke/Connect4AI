@@ -6,11 +6,11 @@
 (def igrac-1-prvi (atom true))
 
 
-(defn- get-row [board row]
+(defn get-row [board row]
   "Vraca red sa indeksom row iz table."
   (nth board row))
 
-(defn- get-col [board col]
+(defn get-col [board col]
   "Vraca kolonu sa indeksom col iz table."
   (map #(nth % col) board))
 
@@ -56,15 +56,22 @@
 (defn find-zero [col]
   "Vraca indeks prvog praznog polja u koloni."
   (loop [i 0]
-    (if (= (nth col i) 0)
-      i
-      (recur (inc i)))))
+    (if (< i (count col))
+      (if (= (nth col i) 0)
+        i
+        (recur (inc i)))
+      6)))
 
+; OCEKUJE VREDNOST< NE ATOM
 (defn place-coin [board col player]
   "Ubacuje novcic igraca player u kolonu col."
   (let [row (find-zero (get-col board col))]
-    (assoc-in board [row col] player)))
+    (if (nil? row)
+      (throw (Exception. "Kolona je puna"))
+      (assoc-in board [row col] player))))
 
+; OCEKUJE ATOM
+; VRACA VREDNOST
 (defn insert-coin [board col player]
   "Validira potez i vraca novu tablu sa novcicem na odgovarajucem mestu."
   (if (or
@@ -80,15 +87,25 @@
       (place-coin board col player)))))
 
 ; swap insert coin, pozivati ovu funkciju
+;(defn insert-coin! [board col player]
+;  "Menja tabelu i unosi novcic u kolonu col za igraca player."
+;  (swap! board #(insert-coin % col player)))
+
+;ZAMENA
 (defn insert-coin! [board col player]
   "Menja tabelu i unosi novcic u kolonu col za igraca player."
-  (swap! board #(insert-coin % col player))
-  (swap! broj-poteza inc))
+  (reset! board (insert-coin @board col player)))
 
 (defn value-at [board row col]
   "Vraca vrednost polja zadatih kooridnata."
   (try (nth (nth board row) col)
        (catch Exception e -1)))
+
+;(defn value-at [board row col]
+;  "Vraca vrednost polja zadatih kooridnata."
+;  (try
+;    (get-in board [row col])
+;    (catch Exception e -1)))
 
 (defn count-left [board row col igrac]
   "Broji koliko novcica igrac ima levo od zadatih koordinata."
@@ -97,9 +114,7 @@
     (loop [i 0]
       (if (not= (value-at board row (- col i 1)) igrac)
         i
-        (recur (inc i)))
-      ))
-  )
+        (recur (inc i))))))
 
 (defn count-right [board row col igrac]
   "Broji koliko novcica igrac ima desno od zadatih koordinata."
@@ -164,7 +179,7 @@
         (recur (inc i))))))
 
 
-(defn- check-win [board row col player]
+(defn check-win [board row col player]
   "Proverava da li je igrac [player] pobedio nakon postavljenog novcica u redu [row] i koloni [col]."
   (if (not= player (value-at board row col))
     false
@@ -213,7 +228,7 @@
 ; player je atom, indeks kolone krece od 1
 (defn play!
   [board col player]
-  "Igra potez za igraca player u koloni col."
+  "Igra potez. Menja igraca, proverava da li je partija zavrsena. Ispisuje stanje"
   (insert-coin! board (- col 1) @player)
   (if (check-win @board (- (count-col @board (- col 1)) 1) (- col 1) @player)
     (do
