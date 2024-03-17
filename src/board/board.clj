@@ -202,7 +202,7 @@
                    (check-win board row col player))))
 
 ; player je atom
-(defn- switch-player!
+(defn switch-player!
   [player]
   "Menja igraca."
   (reset! player (- 3 @player)))

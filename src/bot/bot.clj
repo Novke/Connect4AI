@@ -557,3 +557,39 @@
   (if (< depth 6) (Thread/sleep 2000))
   (let-bot-play! board depth player))
 
+; status 1 - 7, koji je potez odigrao bot
+; status 100 - Igrac je pobedio
+; status 200 - bot je pobedio
+; status 300 - nereseno
+
+(defn responsive-play! [board move player status]
+  "Ponasa se kao play! funkcija i pamti rezultat u atomu status"
+  (reset! status -1)
+  (insert-coin! board (dec move) @player)
+  (if (check-win @board (- (count-col @board (dec move)) 1) (dec move) @player)
+    (do
+      (reset! status (* 100 @player))
+      (switch-player! player))
+    (if (board-full? @board)
+      (do
+        (reset! status -1))
+      (switch-player! player))))
+(defn responsive-autoplay! [board move depth player status]
+  "Odigrava dati potez za igraca 1 i automatski odigrava najbolji moguci za igraca 2 i cuva rezultat u statusu"
+  (reset! status -1)
+  (if (= @player 2)
+    (throw (Exception. "Autoplay moze samo za igraca 1")))
+  (insert-coin! board (dec move) @player)
+  (if (check-win @board (- (count-col @board (dec move)) 1) (dec move) @player)
+    (reset! status 100)
+    (if (board-full? @board)
+      (reset! status 300)
+      (do
+        (switch-player! player)
+        (reset! status (inc (get-best-move @board depth @player)))
+        (insert-coin! board (dec @status) @player)ve
+       (if (check-win @board (- (count-col @board (- move 1)) 1) (- move 1) @player)
+         (reset! status (+ 200 @status))
+         (if (board-full? @board)
+           (reset! status 300)))
+       (switch-player! player)))))
